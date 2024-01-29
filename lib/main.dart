@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:payment_integration/screens/homescreen.dart';
+import 'package:payment_integration/screens/loginscreen.dart';
 
 
 void main() async{
@@ -20,12 +21,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Payment Integration',
+      debugShowCheckedModeBanner: false
+      ,
+      title: 'Payment Integratio',
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
       ),
-      home:  HomeScreen(),
+      home:  SignUp(),
     );
   }
 }
