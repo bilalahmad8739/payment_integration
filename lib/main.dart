@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:payment_integration/screens/homescreen.dart';
-import 'package:payment_integration/screens/loginscreen.dart';
+import 'package:payment_integration/screens/signupscreen/signupscreen.dart';
 
 
 void main() async{
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home:  SignUp(),
+      home:  HomeScreen(),
     );
   }
 }
