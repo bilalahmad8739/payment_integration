@@ -29,5 +29,15 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+              <receiver
+        android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+        android:exported="true" >
+    </receiver>
     </application>
+    
+<!-- <receiver
+    android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+    android:enabled="false"
+    android:exported="false"/> -->
+
 </manifest>
