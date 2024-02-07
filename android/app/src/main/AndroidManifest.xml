@@ -3,6 +3,9 @@
         android:label="payment_integration"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- <uses-permission android:name="android.permission.VIBRATE" />
+        <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

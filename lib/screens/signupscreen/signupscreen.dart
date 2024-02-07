@@ -5,7 +5,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:payment_integration/screens/loginscreen/loginscreen.dart';
-import 'package:payment_integration/screens/home.dart';
 
 class SignUp extends StatelessWidget {
   const SignUp({super.key});

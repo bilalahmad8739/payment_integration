@@ -1,30 +1,3 @@
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-// class NotificationService {
-//   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//       FlutterLocalNotificationsPlugin();
-    
-
-      
-
-//   Future<void> initialize() async {
-//     try{
-//       var initializationSettingAndroid =
-//         AndroidInitializationSettings('app_icon');
-//     var initializeSettings =
-//         InitializationSettings(android: initializationSettingAndroid);
-//     await flutterLocalNotificationsPlugin.initialize(initializeSettings);
-
-//     }catch(e)
-//     {
-//       print('...$e');
-
-//     }
-    
-//   }
-// }
-
-//  final notificationService = NotificationService();
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -32,33 +5,55 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initNotification() async {
-    AndroidInitializationSettings initializationSettingsAndroid =
-        const AndroidInitializationSettings('flutter_logo');
+    try {
+      print("Initializing notifications...");
 
-    var initializationSettingsIOS = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-        onDidReceiveLocalNotification:
-            (int id, String? title, String? body, String? payload) async {});
+      AndroidInitializationSettings initializationSettingsAndroid =
+          const AndroidInitializationSettings('flutter_logo');
 
-    var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) async {});
+      var initializationSettingsIOS = DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          onDidReceiveLocalNotification:
+              (int id, String? title, String? body, String? payload) async {});
+
+      var initializationSettings = InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS);
+
+      await notificationsPlugin.initialize(initializationSettings,
+          onDidReceiveNotificationResponse:
+              (NotificationResponse notificationResponse) async {});
+    } catch (e) {
+      print('Error in initNotification: $e');
+    }
   }
 
   notificationDetails() {
-    return const NotificationDetails(
-        android: AndroidNotificationDetails('channelId', 'channelName',
-            importance: Importance.max),
-        iOS: DarwinNotificationDetails());
+    try {
+      print("Generating notification details...");
+      return const NotificationDetails(
+          android: AndroidNotificationDetails('channelId', 'channelName',
+              importance: Importance.max),
+          iOS: DarwinNotificationDetails());
+    } catch (e) {
+      print("Error in notificationDetails: $e");
+    }
   }
 
-  Future showNotification(
+  Future<void> showNotification(
       {int id = 0, String? title, String? body, String? payLoad}) async {
-    return notificationsPlugin.show(
-        id, title, body, await notificationDetails());
+    try {
+      print("Showing notification...");
+      var details = await notificationDetails();
+      if (details != null) {
+        return notificationsPlugin.show(id, title, body, details);
+      } else {
+        print("Notification details are null");
+      }
+    } catch (e) {
+      print("Error in showNotification: $e");
+    }
   }
 }
