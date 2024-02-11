@@ -58,7 +58,7 @@ class _ListSearchState extends State<ListSearch>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('List of Search '),
+        title: const Text('List of Search '),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -67,17 +67,24 @@ class _ListSearchState extends State<ListSearch>
             children: [
               TextField(
                 onChanged: search,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Search ... '
                 ),
               ),
-              ListView.builder(
-                  itemCount: names.length,
+              if (searchResult.isNotEmpty)
+                ListView.builder(
+                  itemCount: searchResult.length,
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemBuilder: ((context, index) {
-                    return Text(names[index].name.toString(),style: TextStyle(fontSize: 50),);
-                  })),
+                    return Text(
+                      searchResult[index].name.toString(),
+                      style: const TextStyle(fontSize: 20),
+                    );
+                  }),
+                )
+              else
+                const Text('No results found'),
               // Text(names.contains('apple') ? 'data' : ''),
               const SizedBox(
                 height: 50,
