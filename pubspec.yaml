@@ -38,6 +38,7 @@ dependencies:
   flutter_stripe: ^10.0.0
   http: ^1.2.0
   flutter_local_notifications: ^16.3.2
+  speech_to_text: ^6.6.0
 
 dev_dependencies:
   flutter_test:

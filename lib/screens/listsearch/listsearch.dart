@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ListSearch extends StatefulWidget {
-  const ListSearch({super.key});
+  const ListSearch({Key? key}) : super(key: key);
 
   @override
   State<ListSearch> createState() => _ListSearchState();
@@ -10,49 +11,78 @@ class ListSearch extends StatefulWidget {
 class _ListSearchState extends State<ListSearch>
     with SingleTickerProviderStateMixin {
   List<Data> names = [
-    Data(name: 'bilal', number: 10, rating: 4.5),
-    Data(name: 'khan', number: 20, rating: 5.5),
-    Data(name: 'ahmad', number: 8, rating: 2.5),
-    Data(name: 'zubari', number: 76, rating: 7.5),
-    Data(name: 'abdullah', number: 20, rating: 5.5),
-    Data(name: 'adil', number: 8, rating: 2.5),
-    Data(name: 'zohaib', number: 76, rating: 7.5),
-    Data(name: 'kmran', number: 20, rating: 5.5),
-    Data(name: 'sohail', number: 8, rating: 2.5),
-    Data(name: 'sahil', number: 76, rating: 7.5),
-    Data(name: 'soduas', number: 20, rating: 5.5),
-    Data(name: 'ahmad', number: 8, rating: 2.5),
-    Data(name: 'zubari', number: 76, rating: 7.5),
+    Data(name: 'bilal', number: 10, rating: 4.5, meaning: 'بلال'),
+    Data(name: 'khan', number: 20, rating: 5.5, meaning: 'خان'),
+    // Add meanings for other words
   ];
-  List searchResult=[];
+  List<Data> searchResult = [];
 
-  void search (String query)
-  {
-   setState(() {
-     
-   searchResult = names
-          .where((item) => item.name!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-   });
+  TextEditingController searchController = TextEditingController();
 
+  late stt.SpeechToText _speech;
+  String _spokenWord = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+    _initializeSpeech();
   }
-  // void sortRating() {
-  //   names.sort(
-  //     (a, b) {
-  //       return (a.rating.compareTo(b.rating));
-  //     },
-  //   );
-  //   setState(() {
-      
-  //   });
-  // }
 
-  // List<String> fruits = ['apple', 'mango', 'graps', 'orange'];
-  // void refreshList() {
-  //   fruits.clear();
-  //   fruits.addAll(['goat', 'cow', 'lion']);
-  //   setState(() {});
-  // }
+  void _initializeSpeech() async {
+    if (await _speech.initialize()) {
+      _speech.listen(
+        onResult: (result) {
+          setState(() {
+            _spokenWord = result.recognizedWords;
+          });
+
+          // Automatically trigger the search when a word is spoken
+          search(_spokenWord);
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _speech.stop();
+    super.dispose();
+  }
+
+  void search(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        searchResult.clear();
+      } else {
+        searchResult = names
+            .where((item) =>
+                item.name!.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void handleItemTap(String selectedWord) {
+    Data selectedData =
+        names.firstWhere((data) => data.name == selectedWord, orElse: () {
+      return Data(name: '', number: 0, rating: 0.0, meaning: '');
+    });
+
+    if (selectedData.name!.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MeaningScreen(meaning: selectedData.meaning),
+        ),
+      );
+    }
+
+    setState(() {
+      searchController.text = selectedWord;
+      searchResult.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,11 +95,32 @@ class _ListSearchState extends State<ListSearch>
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              TextField(
-                onChanged: search,
-                decoration: const InputDecoration(
-                  hintText: 'Search ... '
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: search,
+                      decoration: const InputDecoration(
+                        hintText: 'Search ... ',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.mic),
+                    onPressed: () {
+                      if (!_speech.isListening) {
+                        _speech.listen(onResult: (result) {
+                          setState(() {
+                            _spokenWord = result.recognizedWords;
+                          });
+                        });
+                      } else {
+                        _speech.stop();
+                      }
+                    },
+                  ),
+                ],
               ),
               if (searchResult.isNotEmpty)
                 ListView.builder(
@@ -77,39 +128,49 @@ class _ListSearchState extends State<ListSearch>
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemBuilder: ((context, index) {
-                    return Text(
-                      searchResult[index].name.toString(),
-                      style: const TextStyle(fontSize: 20),
+                    return GestureDetector(
+                      onTap: () =>
+                          handleItemTap(searchResult[index].name!),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          searchResult[index].name.toString(),
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
                     );
                   }),
                 )
+              else if (searchController.text.isNotEmpty && searchResult.isEmpty)
+                const Text('No results found')
               else
-                const Text('No results found'),
-              // Text(names.contains('apple') ? 'data' : ''),
+                const SizedBox(),
               const SizedBox(
                 height: 50,
               ),
-              // ListView.builder(
-              //   itemCount: names.length,
-              //     scrollDirection: Axis.vertical,
-              //   shrinkWrap: true,
-              //   itemBuilder: ((context, index) {
-        
-              //   return ListTile(
-              //     leading: Text(names[index].name.toString()),
-              //     subtitle: Text(names[index].number.toString()),
-              //     trailing: Text(names[index].rating.toStringAsFixed(2)),
-              //   );
-                
-              // })),
-              // ElevatedButton(
-              //     onPressed: () {
-              //       // refreshList();
-              //       // sortRating();
-              //     },
-              //     child: Text('add'))
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class MeaningScreen extends StatelessWidget {
+  final String meaning;
+
+  const MeaningScreen({Key? key, required this.meaning}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Word Meaning in Urdu'),
+      ),
+      body: Center(
+        child: Text(
+          meaning,
+          style: const TextStyle(fontSize: 24),
         ),
       ),
     );
@@ -120,9 +181,12 @@ class Data {
   final String? name;
   final int number;
   final double rating;
+  final String meaning;
+
   Data({
     required this.rating,
     required this.number,
     required this.name,
+    required this.meaning,
   });
 }
